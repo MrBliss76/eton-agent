@@ -20,7 +20,15 @@ def fetch_results_for_school(name):
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        pdf_links = [a["href"] for a in soup.find_all("a", href=True) if ".pdf" in a["href"]]
+        pdf_links = []
+for a in soup.find_all("a", href=True):
+    href = a["href"]
+    text = a.get_text(strip=True).lower()
+    if ".pdf" in href.lower() and any(keyword in href.lower() + text for keyword in ["exam", "results", "a-level", "gcse", "ib"]):
+        if not href.startswith("http"):
+            href = url.rstrip("/") + "/" + href.lstrip("/")
+        pdf_links.append(href)
+
         results = {}
 
         for link in pdf_links[:1]:  # limit to 1 for speed
